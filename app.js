@@ -66,12 +66,14 @@ function renderTasks(tasks) {
         </div>
       </div>
       <div class="task-actions">
-        <button class="btn-done" aria-label="Toggle done">${task.done ? 'Undo' : 'Done'}</button>
-        <button class="btn-delete" aria-label="Delete task">Delete</button>
+        <button class="btn-done">${task.done ? 'Undo' : 'Done'}</button>
+        <button class="btn-edit">Edit</button>
+        <button class="btn-delete">Delete</button>
       </div>
     `;
 
     li.querySelector('.btn-done').addEventListener('click', () => toggleDone(task.id));
+    li.querySelector('.btn-edit').addEventListener('click', () => openEdit(task.id));
     li.querySelector('.btn-delete').addEventListener('click', () => deleteTask(task.id));
 
     list.appendChild(li);
@@ -82,19 +84,111 @@ function escapeHtml(str) {
   return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 }
 
+// ── Filter + Sort ─────────────────────────────────────
+function getFilteredSorted(tasks) {
+  const query    = document.getElementById('search').value.toLowerCase().trim();
+  const priority = document.getElementById('filter-priority').value;
+  const sortBy   = document.getElementById('sort-by').value;
+
+  let result = tasks;
+
+  if (query) {
+    result = result.filter(t =>
+      t.title.toLowerCase().includes(query) ||
+      (t.project || '').toLowerCase().includes(query) ||
+      (t.tags || '').toLowerCase().includes(query)
+    );
+  }
+
+  if (priority !== 'all') {
+    result = result.filter(t => t.priority === priority);
+  }
+
+  if (sortBy === 'due') {
+    result = [...result].sort((a, b) => {
+      if (!a.dueDate) return 1;
+      if (!b.dueDate) return -1;
+      return a.dueDate.localeCompare(b.dueDate);
+    });
+  }
+
+  return result;
+}
+
+function refresh() {
+  renderTasks(getFilteredSorted(loadTasks()));
+}
+
+document.getElementById('search').addEventListener('input', refresh);
+document.getElementById('filter-priority').addEventListener('change', refresh);
+document.getElementById('sort-by').addEventListener('change', refresh);
+
 // ── Actions ──────────────────────────────────────────
 function toggleDone(id) {
   const tasks = loadTasks().map(t => t.id === id ? { ...t, done: !t.done } : t);
   saveTasks(tasks);
-  renderTasks(filterTasks(tasks));
+  refresh();
 }
 
 function deleteTask(id) {
   if (!confirm('Delete this task?')) return;
-  const tasks = loadTasks().filter(t => t.id !== id);
-  saveTasks(tasks);
-  renderTasks(filterTasks(tasks));
+  saveTasks(loadTasks().filter(t => t.id !== id));
+  refresh();
 }
+
+// ── Edit Modal ────────────────────────────────────────
+const modal = document.getElementById('edit-modal');
+let editingId = null;
+
+function openEdit(id) {
+  const task = loadTasks().find(t => t.id === id);
+  if (!task) return;
+
+  editingId = id;
+  document.getElementById('edit-title').value       = task.title;
+  document.getElementById('edit-project').value     = task.project || '';
+  document.getElementById('edit-tags').value        = task.tags || '';
+  document.getElementById('edit-description').value = task.description || '';
+  document.getElementById('edit-priority').value    = task.priority;
+  document.getElementById('edit-due-date').value    = task.dueDate || '';
+
+  modal.classList.remove('hidden');
+}
+
+document.getElementById('edit-cancel').addEventListener('click', () => {
+  modal.classList.add('hidden');
+  editingId = null;
+});
+
+modal.addEventListener('click', e => {
+  if (e.target === modal) {
+    modal.classList.add('hidden');
+    editingId = null;
+  }
+});
+
+document.getElementById('edit-form').addEventListener('submit', e => {
+  e.preventDefault();
+  if (editingId === null) return;
+
+  const tasks = loadTasks().map(t => {
+    if (t.id !== editingId) return t;
+    return {
+      ...t,
+      title:       document.getElementById('edit-title').value.trim(),
+      project:     document.getElementById('edit-project').value.trim(),
+      tags:        document.getElementById('edit-tags').value.trim(),
+      description: document.getElementById('edit-description').value.trim(),
+      priority:    document.getElementById('edit-priority').value,
+      dueDate:     document.getElementById('edit-due-date').value,
+    };
+  });
+
+  saveTasks(tasks);
+  modal.classList.add('hidden');
+  editingId = null;
+  refresh();
+});
 
 // ── Add Task ─────────────────────────────────────────
 document.getElementById('task-form').addEventListener('submit', e => {
@@ -102,39 +196,24 @@ document.getElementById('task-form').addEventListener('submit', e => {
 
   const tasks = loadTasks();
   const task = {
-    id: nextId(tasks),
-    title: document.getElementById('title').value.trim(),
-    project: document.getElementById('project').value.trim(),
-    tags: document.getElementById('tags').value.trim(),
+    id:          nextId(tasks),
+    title:       document.getElementById('title').value.trim(),
+    project:     document.getElementById('project').value.trim(),
+    tags:        document.getElementById('tags').value.trim(),
     description: document.getElementById('description').value.trim(),
-    priority: document.getElementById('priority').value,
-    dueDate: document.getElementById('due-date').value,
-    done: false,
-    createdAt: new Date().toISOString(),
+    priority:    document.getElementById('priority').value,
+    dueDate:     document.getElementById('due-date').value,
+    done:        false,
+    createdAt:   new Date().toISOString(),
   };
 
   tasks.unshift(task);
   saveTasks(tasks);
-  renderTasks(filterTasks(tasks));
+  refresh();
 
   e.target.reset();
   document.getElementById('priority').value = 'normal';
 });
 
-// ── Search ────────────────────────────────────────────
-function filterTasks(tasks) {
-  const query = document.getElementById('search').value.toLowerCase().trim();
-  if (!query) return tasks;
-  return tasks.filter(t =>
-    t.title.toLowerCase().includes(query) ||
-    (t.project || '').toLowerCase().includes(query) ||
-    (t.tags || '').toLowerCase().includes(query)
-  );
-}
-
-document.getElementById('search').addEventListener('input', () => {
-  renderTasks(filterTasks(loadTasks()));
-});
-
 // ── Init ──────────────────────────────────────────────
-renderTasks(loadTasks());
+refresh();

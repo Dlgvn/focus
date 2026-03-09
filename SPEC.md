@@ -1,51 +1,54 @@
-# Task Manager Specification
+# Focus — Task Manager Specification
 
-## Overview
-A CLI task management tool for personal productivity, built with Python 3.11+.
+## What is Focus?
+Focus is a clean, minimal web app for managing project work.
+No accounts, no backend, no clutter — just your tasks, organized.
+
+## Who is it for?
+Me. Someone juggling multiple projects who needs to see what's urgent,
+what's coming up, and what can wait.
 
 ## Features
-1. Add tasks with title, optional description, due date, and priority
-2. List tasks (all, by status, by priority)
-3. Mark tasks complete/incomplete
-4. Delete tasks
-5. Edit tasks
-6. Search tasks by keyword
+
+### Core
+- Add a task with: title, description, due date, priority, tags, project name
+- View all tasks in a clean list
+- Search tasks by title, tag, or project name
+- Mark a task as done
+- Delete a task
+
+### Priority System
+Three levels — kept intentionally simple:
+- `urgent` — needs attention now
+- `normal` — working on it
+- `someday` — not now, but don't forget
+
+### Design
+- Clean white/minimal by default
+- Dark mode toggle (saved to localStorage)
+- Simple, no clutter — if it doesn't need to be there, it isn't
+
+## Task Fields
+| Field        | Required | Notes                          |
+|--------------|----------|-------------------------------|
+| Title        | Yes      | Short description of the task  |
+| Priority     | Yes      | urgent / normal / someday      |
+| Project name | No       | e.g. "Deep Learning", "Lab 4"  |
+| Due date     | No       | YYYY-MM-DD format              |
+| Description  | No       | More detail if needed          |
+| Tags         | No       | Comma-separated, e.g. "ai, hw" |
 
 ## Technical Details
-- Language: Python 3.11+
-- Storage: JSON file (`data/tasks.json`)
-- Interface: CLI using Click library
+- Language: HTML + CSS + Vanilla JavaScript
+- Storage: localStorage (no backend needed)
+- No frameworks, no dependencies — runs by opening index.html
 
-## CLI Commands
-```
-task add "Title" [--description "..."] [--due DATE] [--priority high/medium/low]
-task list [--status done/todo] [--priority high/medium/low]
-task done ID
-task delete ID
-task edit ID [--title "..."] [--description "..."] [--due DATE] [--priority ...]
-task search "keyword"
-```
+## What "Done" Looks Like
+I can open the app, add a task for a real project I'm working on,
+search for it, mark it done, and it looks clean doing it.
+Dark mode works. Data survives a page refresh.
 
-## Data Structure
-```json
-{
-  "tasks": [
-    {
-      "id": 1,
-      "title": "Buy groceries",
-      "description": "Milk, eggs, bread",
-      "due_date": "2026-02-15",
-      "priority": "high",
-      "status": "todo",
-      "created_at": "2026-02-10T10:00:00",
-      "updated_at": "2026-02-10T10:00:00"
-    }
-  ]
-}
-```
-
-## Success Criteria
-- [ ] All commands work as specified
-- [ ] Data persists between runs
-- [ ] Invalid input is handled gracefully
-- [ ] Tests pass
+## Stretch Goals (if time allows)
+- Filter by priority or project
+- Sort by due date
+- Edit an existing task

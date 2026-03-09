@@ -1,51 +1,79 @@
 {
-  "project": "Task Manager CLI",
+  "project": "Focus - Task Manager Web App",
   "branch": "main",
   "goals": [
     {
       "id": "1",
-      "goal": "Project structure is set up: Task dataclass and JSON storage utilities exist and are importable.",
+      "goal": "Basic layout exists: index.html loads with a header, task input form, and empty task list area.",
       "depends_on": [],
       "verification": {
-        "type": "test",
-        "tests_to_write": ["test that Task dataclass can be created and storage can load/save in tests/test_storage.py"],
-        "command": "pytest tests/test_storage.py -v"
+        "type": "manual",
+        "checklist": [
+          "index.html opens in browser without errors",
+          "Header shows 'Focus'",
+          "Form has fields: title, priority, project, due date",
+          "Empty task list area is visible"
+        ]
       },
       "status": "pending",
       "added_by": "human"
     },
     {
       "id": "2",
-      "goal": "Users can add a task and list all tasks from the CLI.",
+      "goal": "User can add a task and see it appear in the list immediately. Data persists after page refresh.",
       "depends_on": ["1"],
       "verification": {
-        "type": "test",
-        "tests_to_write": ["add and list behavior in tests/test_add_list.py"],
-        "command": "pytest tests/test_add_list.py -v"
+        "type": "manual",
+        "checklist": [
+          "Fill form and click Add — task appears in list",
+          "Refresh the page — task is still there (localStorage)",
+          "Task shows title, priority, project name, due date"
+        ]
       },
       "status": "pending",
       "added_by": "human"
     },
     {
       "id": "3",
-      "goal": "Users can mark a task as done, and list output shows completed state.",
+      "goal": "User can mark a task done and delete a task.",
       "depends_on": ["2"],
       "verification": {
-        "type": "test",
-        "tests_to_write": ["done behavior in tests/test_done.py"],
-        "command": "pytest tests/test_done.py -v"
+        "type": "manual",
+        "checklist": [
+          "Click done — task gets a visual completed state",
+          "Click delete — task is removed from list and localStorage",
+          "Refresh — deleted task stays gone, done task stays done"
+        ]
       },
       "status": "pending",
       "added_by": "human"
     },
     {
       "id": "4",
-      "goal": "Users can delete a task by ID.",
+      "goal": "Search bar filters tasks in real time by title, tag, or project name.",
       "depends_on": ["3"],
       "verification": {
-        "type": "test",
-        "tests_to_write": ["delete behavior in tests/test_delete.py"],
-        "command": "pytest tests/test_delete.py -v"
+        "type": "manual",
+        "checklist": [
+          "Type in search bar — list filters instantly",
+          "Matches on title, tags, and project name",
+          "Clear search — full list returns"
+        ]
+      },
+      "status": "pending",
+      "added_by": "human"
+    },
+    {
+      "id": "5",
+      "goal": "Dark mode toggle works and preference is saved across page refreshes.",
+      "depends_on": ["4"],
+      "verification": {
+        "type": "manual",
+        "checklist": [
+          "Toggle switches between light and dark mode",
+          "Refresh — preference is remembered",
+          "Both modes look clean and readable"
+        ]
       },
       "status": "pending",
       "added_by": "human"

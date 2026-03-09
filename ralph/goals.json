@@ -11,7 +11,7 @@
         "tests_to_write": ["test that Task dataclass can be created and storage can load/save in tests/test_storage.py"],
         "command": "pytest tests/test_storage.py -v"
       },
-      "status": "pending",
+      "status": "passed",
       "added_by": "human"
     },
     {

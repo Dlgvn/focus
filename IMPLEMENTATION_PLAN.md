@@ -5,10 +5,10 @@
 - [x] Complete
 
 ## Phase 1: Setup
-- [ ] Initialize project structure (pyproject.toml / requirements.txt)
-- [ ] Create Task dataclass
-- [ ] Set up JSON storage utilities
-- [ ] Create basic test structure
+- [x] Initialize project structure (pyproject.toml / requirements.txt)
+- [x] Create Task dataclass
+- [x] Set up JSON storage utilities
+- [x] Create basic test structure
 
 ## Phase 2: Core Commands
 - [ ] Implement `task add`

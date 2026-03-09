@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Focus</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <header>
+    <h1>Focus</h1>
+    <button id="dark-mode-toggle" aria-label="Toggle dark mode">🌙</button>
+  </header>
+
+  <main>
+    <!-- Add Task Form -->
+    <section class="form-section">
+      <form id="task-form">
+        <input type="text" id="title" placeholder="Task title" required />
+        <input type="text" id="project" placeholder="Project name" />
+        <input type="text" id="tags" placeholder="Tags (comma separated)" />
+        <textarea id="description" placeholder="Description (optional)" rows="2"></textarea>
+        <div class="form-row">
+          <select id="priority">
+            <option value="urgent">Urgent</option>
+            <option value="normal" selected>Normal</option>
+            <option value="someday">Someday</option>
+          </select>
+          <input type="date" id="due-date" />
+          <button type="submit">Add Task</button>
+        </div>
+      </form>
+    </section>
+
+    <!-- Search -->
+    <section class="search-section">
+      <input type="text" id="search" placeholder="Search by title, tag, or project..." />
+    </section>
+
+    <!-- Task List -->
+    <section class="task-list-section">
+      <ul id="task-list"></ul>
+      <p id="empty-state" class="empty-state">No tasks yet — add one above.</p>
+    </section>
+  </main>
+
+  <script src="app.js"></script>
+</body>
+</html>

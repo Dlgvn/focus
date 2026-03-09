@@ -1,34 +1,32 @@
-# Implementation Plan
+# Implementation Plan — Focus
 
 ## Status Key
 - [ ] Not started
 - [x] Complete
 
 ## Phase 1: Setup
-- [x] Initialize project structure (pyproject.toml / requirements.txt)
-- [x] Create Task dataclass
-- [x] Set up JSON storage utilities
-- [x] Create basic test structure
+- [ ] Create project structure (index.html, style.css, app.js)
+- [ ] Basic layout — header, task input form, task list area
+- [ ] localStorage read/write utilities
 
-## Phase 2: Core Commands
-- [ ] Implement `task add`
-- [ ] Add tests for `task add`
-- [ ] Implement `task list`
-- [ ] Add tests for `task list`
-- [ ] Implement `task done`
-- [ ] Add tests for `task done`
+## Phase 2: Core Features
+- [ ] Add task form (title, priority, project, due date, description, tags)
+- [ ] Render task list from localStorage
+- [ ] Mark task as done
+- [ ] Delete task
 
-## Phase 3: Additional Commands
-- [ ] Implement `task delete`
-- [ ] Implement `task edit`
-- [ ] Implement `task search`
-- [ ] Add tests for remaining commands
+## Phase 3: Search
+- [ ] Search bar — filter by title, tag, or project name in real time
 
-## Phase 4: Polish
-- [ ] Add error handling for all edge cases
-- [ ] Add colored output (using rich or colorama)
-- [ ] Add --help documentation
-- [ ] Write README.md
+## Phase 4: Design
+- [ ] Clean white/minimal styling
+- [ ] Dark mode toggle (saved to localStorage)
+- [ ] Priority visual indicators (color or label)
+
+## Phase 5: Polish
+- [ ] Empty state message ("No tasks yet — add one above")
+- [ ] Confirm before delete
+- [ ] README.md
 
 ## Progress Log
 | Date | Task | Status | Notes |

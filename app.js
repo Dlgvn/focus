@@ -14,11 +14,14 @@ function nextId(tasks) {
 }
 
 // ── Dark Mode ────────────────────────────────────────
-const toggle = document.getElementById('dark-mode-toggle');
+const toggle   = document.getElementById('dark-mode-toggle');
+const iconMoon = document.getElementById('icon-moon');
+const iconSun  = document.getElementById('icon-sun');
 
 function applyDarkMode(on) {
   document.body.classList.toggle('dark', on);
-  toggle.textContent = on ? '☀️' : '🌙';
+  iconMoon.classList.toggle('hidden', on);
+  iconSun.classList.toggle('hidden', !on);
 }
 
 applyDarkMode(localStorage.getItem('focus_dark') === 'true');
@@ -51,7 +54,7 @@ function renderTasks(tasks) {
       .split(',')
       .map(t => t.trim())
       .filter(Boolean)
-      .map(t => `<span class="badge">${t}</span>`)
+      .map(t => `<span class="badge">${escapeHtml(t)}</span>`)
       .join('');
 
     li.innerHTML = `
@@ -61,14 +64,14 @@ function renderTasks(tasks) {
         <div class="task-meta">
           <span class="badge ${task.priority}">${task.priority}</span>
           ${task.project ? `<span class="badge">${escapeHtml(task.project)}</span>` : ''}
-          ${task.dueDate ? `<span class="badge">📅 ${task.dueDate}</span>` : ''}
+          ${task.dueDate ? `<span class="badge">Due: ${task.dueDate}</span>` : ''}
           ${tags}
         </div>
       </div>
       <div class="task-actions">
-        <button class="btn-done">${task.done ? 'Undo' : 'Done'}</button>
-        <button class="btn-edit">Edit</button>
-        <button class="btn-delete">Delete</button>
+        <button class="btn-done" aria-label="${task.done ? 'Undo task' : 'Mark task done'}">${task.done ? 'Undo' : 'Done'}</button>
+        <button class="btn-edit" aria-label="Edit task">Edit</button>
+        <button class="btn-delete" aria-label="Delete task">Delete</button>
       </div>
     `;
 
@@ -153,6 +156,7 @@ function openEdit(id) {
   document.getElementById('edit-due-date').value    = task.dueDate || '';
 
   modal.classList.remove('hidden');
+  document.getElementById('edit-title').focus();
 }
 
 document.getElementById('edit-cancel').addEventListener('click', () => {

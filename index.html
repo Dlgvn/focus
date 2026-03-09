@@ -4,30 +4,49 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Focus</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
 
   <header>
     <h1>Focus</h1>
-    <button id="dark-mode-toggle" aria-label="Toggle dark mode">🌙</button>
+    <button id="dark-mode-toggle" aria-label="Toggle dark mode">
+      <!-- icon swapped by app.js -->
+      <svg id="icon-moon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+      <svg id="icon-sun" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="hidden"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+    </button>
   </header>
 
   <main>
     <!-- Add Task Form -->
     <section class="form-section">
       <form id="task-form">
+        <label for="title" class="sr-only">Task title</label>
         <input type="text" id="title" placeholder="Task title" required />
+
+        <label for="project" class="sr-only">Project name</label>
         <input type="text" id="project" placeholder="Project name" />
+
+        <label for="tags" class="sr-only">Tags (comma separated)</label>
         <input type="text" id="tags" placeholder="Tags (comma separated)" />
+
+        <label for="description" class="sr-only">Description</label>
         <textarea id="description" placeholder="Description (optional)" rows="2"></textarea>
+
         <div class="form-row">
+          <label for="priority" class="sr-only">Priority</label>
           <select id="priority">
             <option value="urgent">Urgent</option>
             <option value="normal" selected>Normal</option>
             <option value="someday">Someday</option>
           </select>
+
+          <label for="due-date" class="sr-only">Due date</label>
           <input type="date" id="due-date" />
+
           <button type="submit">Add Task</button>
         </div>
       </form>
@@ -35,14 +54,18 @@
 
     <!-- Search & Filters -->
     <section class="search-section">
+      <label for="search" class="sr-only">Search tasks</label>
       <input type="text" id="search" placeholder="Search by title, tag, or project..." />
       <div class="filters">
+        <label for="filter-priority" class="sr-only">Filter by priority</label>
         <select id="filter-priority">
           <option value="all">All priorities</option>
           <option value="urgent">Urgent</option>
           <option value="normal">Normal</option>
           <option value="someday">Someday</option>
         </select>
+
+        <label for="sort-by" class="sr-only">Sort by</label>
         <select id="sort-by">
           <option value="newest">Newest first</option>
           <option value="due">Due date</option>
@@ -51,20 +74,31 @@
     </section>
 
     <!-- Edit Modal -->
-    <div id="edit-modal" class="modal hidden">
+    <div id="edit-modal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="edit-modal-title">
       <div class="modal-box">
-        <h2>Edit Task</h2>
+        <h2 id="edit-modal-title">Edit Task</h2>
         <form id="edit-form">
+          <label for="edit-title" class="sr-only">Task title</label>
           <input type="text" id="edit-title" placeholder="Task title" required />
+
+          <label for="edit-project" class="sr-only">Project name</label>
           <input type="text" id="edit-project" placeholder="Project name" />
+
+          <label for="edit-tags" class="sr-only">Tags (comma separated)</label>
           <input type="text" id="edit-tags" placeholder="Tags (comma separated)" />
+
+          <label for="edit-description" class="sr-only">Description</label>
           <textarea id="edit-description" placeholder="Description (optional)" rows="2"></textarea>
+
           <div class="form-row">
+            <label for="edit-priority" class="sr-only">Priority</label>
             <select id="edit-priority">
               <option value="urgent">Urgent</option>
               <option value="normal">Normal</option>
               <option value="someday">Someday</option>
             </select>
+
+            <label for="edit-due-date" class="sr-only">Due date</label>
             <input type="date" id="edit-due-date" />
           </div>
           <div class="form-row modal-actions">
@@ -77,7 +111,7 @@
 
     <!-- Task List -->
     <section class="task-list-section">
-      <ul id="task-list"></ul>
+      <ul id="task-list" aria-label="Task list"></ul>
       <p id="empty-state" class="empty-state">No tasks yet — add one above.</p>
     </section>
   </main>

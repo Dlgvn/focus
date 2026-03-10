@@ -400,6 +400,15 @@ button[type="submit"]:focus-visible {
 .task-item.normal { border-top: 2px solid var(--accent); }
 .task-item.someday { opacity: 0.8; }
 
+.task-item.overdue-task {
+  border-color: rgba(239, 68, 68, 0.35);
+  background: rgba(239, 68, 68, 0.03);
+}
+body.dark .task-item.overdue-task {
+  border-color: rgba(239, 68, 68, 0.3);
+  background: rgba(239, 68, 68, 0.06);
+}
+
 .task-item.done {
   background: var(--done-bg);
   opacity: 0.65;
@@ -447,6 +456,10 @@ button[type="submit"]:focus-visible {
 /* Dark mode priority badges */
 body.dark .badge.urgent  { background: #7f1d1d55; color: #fca5a5; }
 body.dark .badge.normal  { background: #064e3b55; color: #6ee7b7; }
+
+/* Overdue badge */
+.badge.overdue { background: #fee2e2; color: #b91c1c; font-weight: 700; }
+body.dark .badge.overdue { background: #7f1d1d55; color: #fca5a5; }
 
 /* Clickable tag badges */
 .badge.tag {

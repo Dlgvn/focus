@@ -66,6 +66,12 @@ function updateProjectFilter() {
 // ── Render ───────────────────────────────────────────
 const PRIORITIES = ['urgent', 'normal', 'someday'];
 
+const COL_EMPTY_DEFAULT = {
+  urgent:  'No urgent tasks',
+  normal:  'All clear!',
+  someday: 'Nothing here yet',
+};
+
 function renderTasks(filtered) {
   // Update header stats from full task list
   const allTasks = loadTasks();
@@ -86,10 +92,15 @@ function renderTasks(filtered) {
     const done   = col.filter(t => t.done);
     const sorted = [...active, ...done]; // done tasks sink to bottom
 
+    // Detect: empty because of filter vs genuinely no tasks
+    const totalInCol = allTasks.filter(t => t.priority === priority).length;
+    const isFilterEmpty = totalInCol > 0 && sorted.length === 0;
+
     list.innerHTML = '';
     countEl.textContent = active.length;
 
     if (sorted.length === 0) {
+      emptyEl.textContent = isFilterEmpty ? 'No matches' : COL_EMPTY_DEFAULT[priority];
       emptyEl.classList.remove('hidden');
     } else {
       emptyEl.classList.add('hidden');
@@ -99,8 +110,11 @@ function renderTasks(filtered) {
 }
 
 function createTaskEl(task) {
+  const due = formatDueDate(task.dueDate);
+  const isOverdue = !task.done && due?.overdue;
+
   const li = document.createElement('li');
-  li.className = `task-item ${task.priority}${task.done ? ' done' : ''}`;
+  li.className = `task-item ${task.priority}${task.done ? ' done' : ''}${isOverdue ? ' overdue-task' : ''}`;
   li.dataset.id = task.id;
 
   const tags = (task.tags || '')
@@ -113,13 +127,17 @@ function createTaskEl(task) {
     })
     .join('');
 
+  const dueBadge = due
+    ? `<span class="badge${due.overdue && !task.done ? ' overdue' : ''}">${due.label}</span>`
+    : '';
+
   li.innerHTML = `
     <div class="task-body">
       <div class="task-title">${escapeHtml(task.title)}</div>
       ${task.description ? `<div class="task-description">${escapeHtml(task.description)}</div>` : ''}
       <div class="task-meta">
         ${task.project ? `<span class="badge">${escapeHtml(task.project)}</span>` : ''}
-        ${task.dueDate ? `<span class="badge">Due: ${task.dueDate}</span>` : ''}
+        ${dueBadge}
         ${tags}
       </div>
     </div>
@@ -143,6 +161,26 @@ function createTaskEl(task) {
 
 function escapeHtml(str) {
   return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+}
+
+// ── Due Date Formatting ───────────────────────────────
+function formatDueDate(dateStr) {
+  if (!dateStr) return null;
+
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
+  // Parse as local date to avoid timezone shift
+  const [y, m, d] = dateStr.split('-').map(Number);
+  const due = new Date(y, m - 1, d);
+  const diff = Math.round((due - today) / (1000 * 60 * 60 * 24));
+  const formatted = due.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+
+  if (diff < 0)  return { label: `Overdue · ${formatted}`, overdue: true };
+  if (diff === 0) return { label: `Today · ${formatted}`,  overdue: false };
+  if (diff === 1) return { label: `Tomorrow · ${formatted}`, overdue: false };
+  if (diff <= 7)  return { label: `In ${diff} days · ${formatted}`, overdue: false };
+  return { label: formatted, overdue: false };
 }
 
 // ── Filter + Sort ─────────────────────────────────────

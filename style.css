@@ -399,12 +399,44 @@ button[type="submit"]:focus-visible {
   border-radius: 8px;
   padding: 0.85rem 0.9rem;
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
+  align-items: flex-start;
   gap: 0.5rem;
   transition: box-shadow 0.2s, opacity 0.2s;
 }
 .task-item:hover {
   box-shadow: var(--shadow-hover);
+}
+
+.task-inner {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  min-width: 0;
+}
+
+/* ── Drag Handle ───────────────────────────────────── */
+.drag-handle {
+  color: var(--text-muted);
+  opacity: 0;
+  padding-top: 0.15rem;
+  cursor: grab;
+  flex-shrink: 0;
+  transition: opacity 0.15s;
+  touch-action: none;
+}
+.task-item:hover .drag-handle { opacity: 0.45; }
+.task-item[draggable="true"] { cursor: default; }
+.drag-handle:active { cursor: grabbing; }
+
+/* ── Drag States ───────────────────────────────────── */
+.task-item.dragging {
+  opacity: 0.35;
+  border-style: dashed;
+}
+.task-item.drop-before {
+  border-top: 2px solid var(--accent);
 }
 
 .task-item.urgent { border-top: 2px solid var(--urgent); }
@@ -429,7 +461,7 @@ body.dark .task-item.overdue-task {
   color: var(--done-text);
 }
 
-.task-body { min-width: 0; }
+.task-body { min-width: 0; width: 100%; }
 
 .task-title { font-weight: 600; font-size: 0.9rem; }
 

@@ -7,7 +7,14 @@ function loadTasks() {
 
 function saveTasks(tasks) {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(tasks));
+  if (syncChannel) syncChannel.postMessage('sync');
 }
+
+// ── Tab Sync ─────────────────────────────────────────
+const syncChannel = typeof BroadcastChannel !== 'undefined'
+  ? new BroadcastChannel('focus_sync')
+  : null;
+if (syncChannel) syncChannel.onmessage = () => refresh();
 
 function nextId(tasks) {
   return tasks.length === 0 ? 1 : Math.max(...tasks.map(t => t.id)) + 1;
@@ -62,6 +69,9 @@ function updateProjectFilter() {
     select.appendChild(opt);
   });
 }
+
+// ── Drag & Drop State ─────────────────────────────────
+let draggedId = null;
 
 // ── Render ───────────────────────────────────────────
 const PRIORITIES = ['urgent', 'normal', 'someday'];
@@ -131,20 +141,32 @@ function createTaskEl(task) {
     ? `<span class="badge${due.overdue && !task.done ? ' overdue' : ''}">${due.label}</span>`
     : '';
 
+  const gripHandle = !task.done ? `
+    <div class="drag-handle" aria-hidden="true">
+      <svg width="10" height="14" viewBox="0 0 10 14" fill="currentColor">
+        <circle cx="2" cy="2" r="1.5"/><circle cx="8" cy="2" r="1.5"/>
+        <circle cx="2" cy="7" r="1.5"/><circle cx="8" cy="7" r="1.5"/>
+        <circle cx="2" cy="12" r="1.5"/><circle cx="8" cy="12" r="1.5"/>
+      </svg>
+    </div>` : '';
+
   li.innerHTML = `
-    <div class="task-body">
-      <div class="task-title">${escapeHtml(task.title)}</div>
-      ${task.description ? `<div class="task-description">${escapeHtml(task.description)}</div>` : ''}
-      <div class="task-meta">
-        ${task.project ? `<span class="badge">${escapeHtml(task.project)}</span>` : ''}
-        ${dueBadge}
-        ${tags}
+    ${gripHandle}
+    <div class="task-inner">
+      <div class="task-body">
+        <div class="task-title">${escapeHtml(task.title)}</div>
+        ${task.description ? `<div class="task-description">${escapeHtml(task.description)}</div>` : ''}
+        <div class="task-meta">
+          ${task.project ? `<span class="badge">${escapeHtml(task.project)}</span>` : ''}
+          ${dueBadge}
+          ${tags}
+        </div>
       </div>
-    </div>
-    <div class="task-actions">
-      <button class="btn-done" aria-label="${task.done ? 'Undo task' : 'Mark task done'}">${task.done ? 'Undo' : 'Done'}</button>
-      <button class="btn-edit" aria-label="Edit task">Edit</button>
-      <button class="btn-delete" aria-label="Delete task">Delete</button>
+      <div class="task-actions">
+        <button class="btn-done" aria-label="${task.done ? 'Undo task' : 'Mark task done'}">${task.done ? 'Undo' : 'Done'}</button>
+        <button class="btn-edit" aria-label="Edit task">Edit</button>
+        <button class="btn-delete" aria-label="Delete task">Delete</button>
+      </div>
     </div>
   `;
 
@@ -156,11 +178,87 @@ function createTaskEl(task) {
     badge.addEventListener('click', () => setTagFilter(badge.dataset.tag));
   });
 
+  if (!task.done) {
+    li.draggable = true;
+    li.addEventListener('dragstart', e => {
+      draggedId = task.id;
+      e.dataTransfer.effectAllowed = 'move';
+      requestAnimationFrame(() => li.classList.add('dragging'));
+    });
+    li.addEventListener('dragend', () => {
+      draggedId = null;
+      li.classList.remove('dragging');
+      document.querySelectorAll('.drop-before').forEach(el => el.classList.remove('drop-before'));
+    });
+  }
+
   return li;
 }
 
 function escapeHtml(str) {
   return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+}
+
+// ── Drag & Drop ───────────────────────────────────────
+function getDragAfterEl(list, y) {
+  const items = [...list.querySelectorAll('.task-item:not(.dragging):not(.done)')];
+  return items.reduce((closest, el) => {
+    const { top, height } = el.getBoundingClientRect();
+    const offset = y - top - height / 2;
+    if (offset < 0 && offset > closest.offset) return { offset, el };
+    return closest;
+  }, { offset: Number.NEGATIVE_INFINITY }).el ?? null;
+}
+
+function reorderTask(id, newPriority, afterEl) {
+  let tasks = loadTasks();
+  const idx = tasks.findIndex(t => t.id === id);
+  if (idx === -1) return;
+  const [task] = tasks.splice(idx, 1);
+  task.priority = newPriority;
+
+  if (afterEl) {
+    const afterId = parseInt(afterEl.dataset.id);
+    const afterIdx = tasks.findIndex(t => t.id === afterId);
+    tasks.splice(afterIdx, 0, task);
+  } else {
+    // Place before done tasks in this priority column
+    const lastActiveIdx = tasks.reduce((last, t, i) =>
+      (t.priority === newPriority && !t.done) ? i : last, -1);
+    tasks.splice(lastActiveIdx + 1, 0, task);
+  }
+
+  saveTasks(tasks);
+  refresh();
+}
+
+function initDragDrop() {
+  PRIORITIES.forEach(priority => {
+    const list = document.getElementById(`tasks-${priority}`);
+
+    list.addEventListener('dragover', e => {
+      if (draggedId === null) return;
+      e.preventDefault();
+      e.dataTransfer.dropEffect = 'move';
+      const afterEl = getDragAfterEl(list, e.clientY);
+      document.querySelectorAll('.drop-before').forEach(el => el.classList.remove('drop-before'));
+      if (afterEl) afterEl.classList.add('drop-before');
+    });
+
+    list.addEventListener('dragleave', e => {
+      if (!list.contains(e.relatedTarget)) {
+        document.querySelectorAll('.drop-before').forEach(el => el.classList.remove('drop-before'));
+      }
+    });
+
+    list.addEventListener('drop', e => {
+      e.preventDefault();
+      if (draggedId === null) return;
+      const afterEl = getDragAfterEl(list, e.clientY);
+      document.querySelectorAll('.drop-before').forEach(el => el.classList.remove('drop-before'));
+      reorderTask(draggedId, priority, afterEl);
+    });
+  });
 }
 
 // ── Due Date Formatting ───────────────────────────────
@@ -361,3 +459,4 @@ document.getElementById('task-form').addEventListener('submit', e => {
 
 // ── Init ──────────────────────────────────────────────
 refresh();
+initDragDrop();

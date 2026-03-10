@@ -24,7 +24,13 @@ function applyDarkMode(on) {
   iconSun.classList.toggle('hidden', !on);
 }
 
-applyDarkMode(localStorage.getItem('focus_dark') === 'true');
+// Auto-detect system preference, fall back to saved preference
+const savedDark = localStorage.getItem('focus_dark');
+if (savedDark !== null) {
+  applyDarkMode(savedDark === 'true');
+} else {
+  applyDarkMode(window.matchMedia('(prefers-color-scheme: dark)').matches);
+}
 
 toggle.addEventListener('click', () => {
   const on = !document.body.classList.contains('dark');
@@ -32,9 +38,17 @@ toggle.addEventListener('click', () => {
   localStorage.setItem('focus_dark', on);
 });
 
+// ── Active Tag Filter ─────────────────────────────────
+let activeTagFilter = null;
+
+function setTagFilter(tag) {
+  activeTagFilter = activeTagFilter === tag ? null : tag;
+  refresh();
+}
+
 // ── Render ───────────────────────────────────────────
 function renderTasks(tasks) {
-  const list = document.getElementById('task-list');
+  const list  = document.getElementById('task-list');
   const empty = document.getElementById('empty-state');
 
   list.innerHTML = '';
@@ -54,7 +68,10 @@ function renderTasks(tasks) {
       .split(',')
       .map(t => t.trim())
       .filter(Boolean)
-      .map(t => `<span class="badge">${escapeHtml(t)}</span>`)
+      .map(t => {
+        const isActive = activeTagFilter === t;
+        return `<span class="badge tag${isActive ? ' active' : ''}" data-tag="${escapeHtml(t)}">${escapeHtml(t)}</span>`;
+      })
       .join('');
 
     li.innerHTML = `
@@ -78,6 +95,10 @@ function renderTasks(tasks) {
     li.querySelector('.btn-done').addEventListener('click', () => toggleDone(task.id));
     li.querySelector('.btn-edit').addEventListener('click', () => openEdit(task.id));
     li.querySelector('.btn-delete').addEventListener('click', () => deleteTask(task.id));
+
+    li.querySelectorAll('.badge.tag').forEach(badge => {
+      badge.addEventListener('click', () => setTagFilter(badge.dataset.tag));
+    });
 
     list.appendChild(li);
   });
@@ -107,12 +128,21 @@ function getFilteredSorted(tasks) {
     result = result.filter(t => t.priority === priority);
   }
 
+  if (activeTagFilter) {
+    result = result.filter(t =>
+      (t.tags || '').split(',').map(s => s.trim()).includes(activeTagFilter)
+    );
+  }
+
   if (sortBy === 'due') {
     result = [...result].sort((a, b) => {
       if (!a.dueDate) return 1;
       if (!b.dueDate) return -1;
       return a.dueDate.localeCompare(b.dueDate);
     });
+  } else if (sortBy === 'priority') {
+    const order = { urgent: 0, normal: 1, someday: 2 };
+    result = [...result].sort((a, b) => (order[a.priority] ?? 1) - (order[b.priority] ?? 1));
   }
 
   return result;
@@ -134,9 +164,17 @@ function toggleDone(id) {
 }
 
 function deleteTask(id) {
-  if (!confirm('Delete this task?')) return;
-  saveTasks(loadTasks().filter(t => t.id !== id));
-  refresh();
+  const li = document.querySelector(`[data-id="${id}"]`);
+  if (li) {
+    li.classList.add('removing');
+    setTimeout(() => {
+      saveTasks(loadTasks().filter(t => t.id !== id));
+      refresh();
+    }, 150);
+  } else {
+    saveTasks(loadTasks().filter(t => t.id !== id));
+    refresh();
+  }
 }
 
 // ── Edit Modal ────────────────────────────────────────
@@ -148,27 +186,30 @@ function openEdit(id) {
   if (!task) return;
 
   editingId = id;
-  document.getElementById('edit-title').value       = task.title;
-  document.getElementById('edit-project').value     = task.project || '';
-  document.getElementById('edit-tags').value        = task.tags || '';
-  document.getElementById('edit-description').value = task.description || '';
-  document.getElementById('edit-priority').value    = task.priority;
-  document.getElementById('edit-due-date').value    = task.dueDate || '';
+  document.getElementById('edit-title').value        = task.title;
+  document.getElementById('edit-project').value      = task.project || '';
+  document.getElementById('edit-tags').value         = task.tags || '';
+  document.getElementById('edit-description').value  = task.description || '';
+  document.getElementById('edit-priority').value     = task.priority;
+  document.getElementById('edit-due-date').value     = task.dueDate || '';
 
   modal.classList.remove('hidden');
   document.getElementById('edit-title').focus();
 }
 
-document.getElementById('edit-cancel').addEventListener('click', () => {
+function closeModal() {
   modal.classList.add('hidden');
   editingId = null;
-});
+}
+
+document.getElementById('edit-cancel').addEventListener('click', closeModal);
 
 modal.addEventListener('click', e => {
-  if (e.target === modal) {
-    modal.classList.add('hidden');
-    editingId = null;
-  }
+  if (e.target === modal) closeModal();
+});
+
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape' && !modal.classList.contains('hidden')) closeModal();
 });
 
 document.getElementById('edit-form').addEventListener('submit', e => {
@@ -189,8 +230,7 @@ document.getElementById('edit-form').addEventListener('submit', e => {
   });
 
   saveTasks(tasks);
-  modal.classList.add('hidden');
-  editingId = null;
+  closeModal();
   refresh();
 });
 
@@ -215,8 +255,16 @@ document.getElementById('task-form').addEventListener('submit', e => {
   saveTasks(tasks);
   refresh();
 
+  // Animate the newly added task (first in list)
+  const firstItem = document.querySelector('#task-list .task-item');
+  if (firstItem) {
+    firstItem.classList.add('animate-in');
+    firstItem.addEventListener('animationend', () => firstItem.classList.remove('animate-in'), { once: true });
+  }
+
   e.target.reset();
   document.getElementById('priority').value = 'normal';
+  document.getElementById('title').focus();
 });
 
 // ── Init ──────────────────────────────────────────────

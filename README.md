@@ -39,7 +39,7 @@ open index.html
 | Search | Type in the search bar — filters instantly |
 | Filter by priority | Use the **All priorities** dropdown |
 | Sort by due date | Use the **Newest first** dropdown |
-| Toggle dark mode | Click the 🌙 button in the top right |
+| Toggle dark mode | Click the moon/sun icon in the top right |
 
 ## Tech Stack
 

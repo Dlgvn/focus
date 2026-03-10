@@ -13,11 +13,14 @@
 
   <header>
     <h1>Focus</h1>
-    <button id="dark-mode-toggle" aria-label="Toggle dark mode">
-      <!-- icon swapped by app.js -->
-      <svg id="icon-moon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
-      <svg id="icon-sun" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="hidden"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
-    </button>
+    <div class="header-right">
+      <span id="task-stats" class="task-stats" aria-live="polite"></span>
+      <button id="dark-mode-toggle" aria-label="Toggle dark mode">
+        <!-- icon swapped by app.js -->
+        <svg id="icon-moon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+        <svg id="icon-sun" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="hidden"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+      </button>
+    </div>
   </header>
 
   <main>
@@ -57,19 +60,15 @@
       <label for="search" class="sr-only">Search tasks</label>
       <input type="text" id="search" placeholder="Search by title, tag, or project..." />
       <div class="filters">
-        <label for="filter-priority" class="sr-only">Filter by priority</label>
-        <select id="filter-priority">
-          <option value="all">All priorities</option>
-          <option value="urgent">Urgent</option>
-          <option value="normal">Normal</option>
-          <option value="someday">Someday</option>
+        <label for="filter-project" class="sr-only">Filter by project</label>
+        <select id="filter-project">
+          <option value="all">All projects</option>
         </select>
 
         <label for="sort-by" class="sr-only">Sort by</label>
         <select id="sort-by">
           <option value="newest">Newest first</option>
           <option value="due">Due date</option>
-          <option value="priority">Priority</option>
         </select>
       </div>
     </section>
@@ -110,10 +109,36 @@
       </div>
     </div>
 
-    <!-- Task List -->
-    <section class="task-list-section">
-      <ul id="task-list" aria-label="Task list"></ul>
-      <p id="empty-state" class="empty-state">No tasks yet — add one above.</p>
+    <!-- Kanban Board -->
+    <section class="kanban-board" aria-label="Task board">
+
+      <div class="kanban-col">
+        <div class="kanban-header urgent">
+          <span class="col-title">Urgent</span>
+          <span class="col-count" id="count-urgent">0</span>
+        </div>
+        <ul class="kanban-tasks" id="tasks-urgent" aria-label="Urgent tasks"></ul>
+        <p class="col-empty hidden" id="empty-urgent">No urgent tasks</p>
+      </div>
+
+      <div class="kanban-col">
+        <div class="kanban-header normal">
+          <span class="col-title">Normal</span>
+          <span class="col-count" id="count-normal">0</span>
+        </div>
+        <ul class="kanban-tasks" id="tasks-normal" aria-label="Normal tasks"></ul>
+        <p class="col-empty hidden" id="empty-normal">All clear!</p>
+      </div>
+
+      <div class="kanban-col">
+        <div class="kanban-header someday">
+          <span class="col-title">Someday</span>
+          <span class="col-count" id="count-someday">0</span>
+        </div>
+        <ul class="kanban-tasks" id="tasks-someday" aria-label="Someday tasks"></ul>
+        <p class="col-empty hidden" id="empty-someday">Nothing here yet</p>
+      </div>
+
     </section>
   </main>
 

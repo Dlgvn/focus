@@ -250,6 +250,24 @@ function deleteTask(id) {
   }
 }
 
+// ── Add Task Modal ────────────────────────────────────
+const addModal = document.getElementById('add-modal');
+
+function openAddModal() {
+  addModal.classList.remove('hidden');
+  document.getElementById('title').focus();
+}
+
+function closeAddModal() {
+  addModal.classList.add('hidden');
+  document.getElementById('task-form').reset();
+  document.getElementById('priority').value = 'normal';
+}
+
+document.getElementById('add-task-btn').addEventListener('click', openAddModal);
+document.getElementById('add-cancel').addEventListener('click', closeAddModal);
+addModal.addEventListener('click', e => { if (e.target === addModal) closeAddModal(); });
+
 // ── Edit Modal ────────────────────────────────────────
 const modal = document.getElementById('edit-modal');
 let editingId = null;
@@ -282,7 +300,10 @@ modal.addEventListener('click', e => {
 });
 
 document.addEventListener('keydown', e => {
-  if (e.key === 'Escape' && !modal.classList.contains('hidden')) closeModal();
+  if (e.key === 'Escape') {
+    if (!addModal.classList.contains('hidden')) closeAddModal();
+    else if (!modal.classList.contains('hidden')) closeModal();
+  }
 });
 
 document.getElementById('edit-form').addEventListener('submit', e => {
@@ -327,6 +348,7 @@ document.getElementById('task-form').addEventListener('submit', e => {
 
   tasks.unshift(task);
   saveTasks(tasks);
+  closeAddModal();
   refresh();
 
   // Animate the new task at the top of its priority column
@@ -335,10 +357,6 @@ document.getElementById('task-form').addEventListener('submit', e => {
     newItem.classList.add('animate-in');
     newItem.addEventListener('animationend', () => newItem.classList.remove('animate-in'), { once: true });
   }
-
-  e.target.reset();
-  document.getElementById('priority').value = 'normal';
-  document.getElementById('title').focus();
 });
 
 // ── Init ──────────────────────────────────────────────

@@ -5,29 +5,33 @@
 - [x] Complete
 
 ## Phase 1: Setup
-- [ ] Create project structure (index.html, style.css, app.js)
-- [ ] Basic layout — header, task input form, task list area
-- [ ] localStorage read/write utilities
+- [x] Create project structure (index.html, style.css, app.js)
+- [x] Basic layout — header, task input form, task list area
+- [x] localStorage read/write utilities
 
 ## Phase 2: Core Features
-- [ ] Add task form (title, priority, project, due date, description, tags)
-- [ ] Render task list from localStorage
-- [ ] Mark task as done
-- [ ] Delete task
+- [x] Add task form (title, priority, project, due date, description, tags)
+- [x] Render task list from localStorage
+- [x] Mark task as done
+- [x] Delete task
 
 ## Phase 3: Search
-- [ ] Search bar — filter by title, tag, or project name in real time
+- [x] Search bar — filter by title, tag, or project name in real time
 
 ## Phase 4: Design
-- [ ] Clean white/minimal styling
-- [ ] Dark mode toggle (saved to localStorage)
-- [ ] Priority visual indicators (color or label)
+- [x] Clean white/minimal styling
+- [x] Dark mode toggle (saved to localStorage)
+- [x] Priority visual indicators (color or label)
 
-## Phase 5: Polish
-- [ ] Empty state message ("No tasks yet — add one above")
-- [ ] Confirm before delete
-- [ ] README.md
+## Phase 5: Polish & Stretch Goals
+- [x] Empty state message ("No tasks yet — add one above")
+- [x] Confirm before delete
+- [x] Edit an existing task
+- [x] Filter by priority (urgent / normal / someday)
+- [x] Sort by due date
+- [x] README.md
 
 ## Progress Log
 | Date | Task | Status | Notes |
 |------|------|--------|-------|
+| 2026-03-09 | Phases 1–4 | Complete | Built in initial setup commit |

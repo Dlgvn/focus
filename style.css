@@ -549,7 +549,6 @@ body.dark .badge.normal  { background: #064e3b55; color: #6ee7b7; }
 
 /* Overdue badge */
 .badge.overdue { background: #fee2e2; color: #b91c1c; font-weight: 700; }
-body.dark .badge.overdue { background: #7f1d1d55; color: #fca5a5; }
 
 /* Clickable tag badges */
 .badge.tag {

@@ -156,6 +156,24 @@
       </div>
 
     </section>
+
+    <!-- Calendar View -->
+    <section id="calendar-view" class="hidden" aria-label="Calendar view">
+      <div class="cal-topbar">
+        <div class="cal-mode-toggle" role="group" aria-label="Calendar mode">
+          <button id="cal-month-btn" class="cal-mode-btn active">Month</button>
+          <button id="cal-week-btn" class="cal-mode-btn">Week</button>
+        </div>
+        <div class="cal-nav">
+          <button id="cal-prev" aria-label="Previous period">&lsaquo;</button>
+          <button id="cal-today">Today</button>
+          <button id="cal-next" aria-label="Next period">&rsaquo;</button>
+        </div>
+        <span id="cal-label" class="cal-label"></span>
+      </div>
+      <div id="cal-grid" class="cal-grid"></div>
+      <div id="day-popup" class="day-popup hidden" role="dialog" aria-label="Tasks due"></div>
+    </section>
   </main>
 
   <script src="app.js"></script>

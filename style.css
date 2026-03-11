@@ -1057,3 +1057,45 @@ body.dark .badge.overdue { background: #7f1d1d55; color: #fca5a5; }
     top: auto;
   }
 }
+
+/* ── Dark Mode Contrast Fixes ────────────────────────── */
+
+/* Overdue badge — more readable in dark */
+.dark .badge.overdue {
+  background: #450a0a;
+  color: #fca5a5;
+  border: 1px solid #7f1d1d;
+}
+
+/* Column count badge */
+.dark .col-count {
+  background: rgba(255,255,255,0.12);
+  color: rgba(255,255,255,0.85);
+}
+
+/* Empty state text */
+.dark .col-empty {
+  opacity: 0.6;
+}
+
+/* Modal shadow deeper in dark */
+.dark .modal-box {
+  box-shadow: 0 8px 40px rgba(0,0,0,0.5);
+}
+
+/* Date picker dark mode */
+.dark .date-picker-dropdown,
+.dark .day-popup {
+  box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+}
+.dark .picker-day:hover {
+  background: rgba(255,255,255,0.08);
+}
+
+/* Calendar cells dark mode */
+.dark .cal-cell { background: var(--surface); }
+.dark .cal-cell:hover { background: var(--hover-bg); }
+.dark .cal-cell.other-month { background: var(--bg); }
+.dark .cal-day-header { background: var(--surface); }
+.dark .week-col { background: var(--surface); }
+.dark .week-col:hover { background: var(--hover-bg); }

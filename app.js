@@ -478,6 +478,83 @@ document.getElementById('btn-calendar').addEventListener('click', () => switchVi
 const savedView = localStorage.getItem('focus_view');
 if (savedView === 'calendar') switchView('calendar');
 
+// ── Calendar State ────────────────────────────────────
+let calMode = 'month'; // 'month' | 'week'
+let calDate = new Date();
+calDate.setHours(0, 0, 0, 0);
+
+function getWeekStart(date) {
+  const d = new Date(date);
+  const day = d.getDay(); // 0 = Sunday
+  d.setDate(d.getDate() - day);
+  d.setHours(0, 0, 0, 0);
+  return d;
+}
+
+function renderCalendar() {
+  const label = document.getElementById('cal-label');
+  if (calMode === 'month') {
+    label.textContent = calDate.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+    renderMonthGrid();
+  } else {
+    const weekStart = getWeekStart(calDate);
+    const weekEnd = new Date(weekStart);
+    weekEnd.setDate(weekEnd.getDate() + 6);
+    label.textContent =
+      weekStart.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) +
+      ' – ' +
+      weekEnd.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+    renderWeekGrid();
+  }
+}
+
+function renderMonthGrid() {
+  document.getElementById('cal-grid').textContent = 'Month grid coming...';
+}
+
+function renderWeekGrid() {
+  document.getElementById('cal-grid').textContent = 'Week grid coming...';
+}
+
+// Navigation
+document.getElementById('cal-month-btn').addEventListener('click', () => {
+  calMode = 'month';
+  document.getElementById('cal-month-btn').classList.add('active');
+  document.getElementById('cal-week-btn').classList.remove('active');
+  renderCalendar();
+});
+
+document.getElementById('cal-week-btn').addEventListener('click', () => {
+  calMode = 'week';
+  document.getElementById('cal-week-btn').classList.add('active');
+  document.getElementById('cal-month-btn').classList.remove('active');
+  renderCalendar();
+});
+
+document.getElementById('cal-today').addEventListener('click', () => {
+  calDate = new Date();
+  calDate.setHours(0, 0, 0, 0);
+  renderCalendar();
+});
+
+document.getElementById('cal-prev').addEventListener('click', () => {
+  if (calMode === 'month') {
+    calDate = new Date(calDate.getFullYear(), calDate.getMonth() - 1, 1);
+  } else {
+    calDate.setDate(calDate.getDate() - 7);
+  }
+  renderCalendar();
+});
+
+document.getElementById('cal-next').addEventListener('click', () => {
+  if (calMode === 'month') {
+    calDate = new Date(calDate.getFullYear(), calDate.getMonth() + 1, 1);
+  } else {
+    calDate.setDate(calDate.getDate() + 7);
+  }
+  renderCalendar();
+});
+
 // ── Init ──────────────────────────────────────────────
 refresh();
 initDragDrop();

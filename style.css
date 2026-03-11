@@ -958,3 +958,85 @@ body.dark .badge.overdue { background: #7f1d1d55; color: #fca5a5; }
 }
 .picker-day.other-month { color: var(--text-muted); opacity: 0.5; }
 .picker-day.empty { cursor: default; }
+
+/* ── Mobile Responsive (max-width: 640px) ───────────────── */
+@media (max-width: 640px) {
+  /* Header */
+  header {
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    padding: 0.75rem 1rem;
+  }
+  .header-right {
+    width: 100%;
+    justify-content: space-between;
+  }
+  #task-stats { display: none; }
+
+  /* Search section */
+  .search-section {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+  .filters {
+    flex-direction: row;
+    flex-wrap: wrap;
+  }
+
+  /* Kanban: stack columns vertically */
+  .kanban-board {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+
+  /* Calendar topbar */
+  .cal-topbar {
+    gap: 0.5rem;
+    justify-content: space-between;
+  }
+  .cal-label {
+    width: 100%;
+    text-align: center;
+    order: -1;
+  }
+
+  /* Month grid cells smaller */
+  .cal-cell { min-height: 52px; padding: 0.25rem; }
+  .cal-day-num { font-size: 0.7rem; }
+
+  /* Week grid tighter */
+  .week-col-header { padding: 0.35rem 0.1rem; }
+  .week-day-name { font-size: 0.6rem; }
+  .week-day-num { font-size: 0.8rem; }
+  .week-task-chip { font-size: 0.6rem; padding: 0.15rem 0.2rem; }
+
+  /* Day popup — anchor to bottom on mobile */
+  .day-popup {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    width: 100%;
+    max-width: 100%;
+    border-radius: var(--radius) var(--radius) 0 0;
+    top: auto;
+    padding-bottom: env(safe-area-inset-bottom, 1rem);
+  }
+
+  /* Modals full screen */
+  .modal-box {
+    width: 95vw;
+    max-height: 90vh;
+    overflow-y: auto;
+  }
+
+  /* Date picker dropdown full width on mobile */
+  .date-picker-dropdown {
+    position: fixed;
+    bottom: env(safe-area-inset-bottom, 1rem);
+    left: 1rem;
+    right: 1rem;
+    width: auto;
+    top: auto;
+  }
+}

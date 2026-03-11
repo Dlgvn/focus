@@ -597,7 +597,50 @@ function renderMonthGrid() {
 }
 
 function renderWeekGrid() {
-  document.getElementById('cal-grid').textContent = 'Week grid coming...';
+  const grid = document.getElementById('cal-grid');
+  const tasks = loadTasks();
+  const taskMap = buildTaskMap(tasks);
+
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
+  const weekStart = getWeekStart(calDate);
+
+  let html = '<div class="week-grid">';
+
+  for (let i = 0; i < 7; i++) {
+    const day = new Date(weekStart);
+    day.setDate(day.getDate() + i);
+    const key = toDateKey(day);
+    const isToday = day.getTime() === today.getTime();
+    const dayTasks = taskMap[key] || [];
+
+    html += `<div class="week-col${isToday ? ' today' : ''}" data-date="${key}">
+      <div class="week-col-header">
+        <span class="week-day-name">${day.toLocaleDateString('en-US', { weekday: 'short' })}</span>
+        <span class="week-day-num">${day.getDate()}</span>
+      </div>
+      <div class="week-tasks">
+        ${dayTasks.map(t => `
+          <div class="week-task-chip ${t.priority}">${escapeHtml(t.title)}</div>
+        `).join('')}
+      </div>
+    </div>`;
+  }
+
+  html += '</div>';
+  grid.innerHTML = html;
+
+  // Click handlers on columns (excluding chip clicks)
+  grid.querySelectorAll('.week-col[data-date]').forEach(col => {
+    col.addEventListener('click', e => {
+      if (e.target.closest('.week-task-chip')) return;
+      const key = col.dataset.date;
+      const dayTasks = taskMap[key] || [];
+      if (dayTasks.length > 0) showDayPopup(col, key, dayTasks);
+      else closeDayPopup();
+    });
+  });
 }
 
 // Navigation

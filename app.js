@@ -457,6 +457,27 @@ document.getElementById('task-form').addEventListener('submit', e => {
   }
 });
 
+// ── View Switch ───────────────────────────────────────
+function switchView(view) {
+  const isCalendar = view === 'calendar';
+  document.querySelector('.kanban-board').classList.toggle('hidden', isCalendar);
+  document.querySelector('.search-section').classList.toggle('hidden', isCalendar);
+  document.getElementById('calendar-view').classList.toggle('hidden', !isCalendar);
+  document.getElementById('btn-board').classList.toggle('active', !isCalendar);
+  document.getElementById('btn-calendar').classList.toggle('active', isCalendar);
+  document.getElementById('btn-board').setAttribute('aria-pressed', String(!isCalendar));
+  document.getElementById('btn-calendar').setAttribute('aria-pressed', String(isCalendar));
+  localStorage.setItem('focus_view', view);
+  if (isCalendar) renderCalendar();
+}
+
+document.getElementById('btn-board').addEventListener('click', () => switchView('board'));
+document.getElementById('btn-calendar').addEventListener('click', () => switchView('calendar'));
+
+// Restore saved view on load
+const savedView = localStorage.getItem('focus_view');
+if (savedView === 'calendar') switchView('calendar');
+
 // ── Init ──────────────────────────────────────────────
 refresh();
 initDragDrop();

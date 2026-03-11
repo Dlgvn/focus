@@ -359,6 +359,7 @@ function openAddModal() {
 function closeAddModal() {
   addModal.classList.add('hidden');
   document.getElementById('task-form').reset();
+  addPicker.updateTrigger();
   document.getElementById('priority').value = 'normal';
 }
 
@@ -381,6 +382,7 @@ function openEdit(id) {
   document.getElementById('edit-description').value  = task.description || '';
   document.getElementById('edit-priority').value     = task.priority;
   document.getElementById('edit-due-date').value     = task.dueDate || '';
+  editPicker.updateTrigger();
 
   modal.classList.remove('hidden');
   document.getElementById('edit-title').focus();
@@ -457,6 +459,157 @@ document.getElementById('task-form').addEventListener('submit', e => {
     newItem.addEventListener('animationend', () => newItem.classList.remove('animate-in'), { once: true });
   }
 });
+
+// ── Date Picker ───────────────────────────────────────
+function initDatePicker(pickerId) {
+  const trigger  = document.getElementById(`${pickerId}-trigger`);
+  const input    = document.getElementById(pickerId);
+  const dropdown = document.getElementById(`${pickerId}-dropdown`);
+  const calDiv   = document.getElementById(`${pickerId}-cal`);
+
+  let pickerMonth = new Date();
+  pickerMonth.setDate(1);
+  pickerMonth.setHours(0, 0, 0, 0);
+
+  function updateTrigger() {
+    const val = input.value;
+    if (val) {
+      const [y, m, d] = val.split('-').map(Number);
+      const label = new Date(y, m - 1, d).toLocaleDateString('en-US', {
+        month: 'short', day: 'numeric', year: 'numeric'
+      });
+      trigger.textContent = label;
+      trigger.classList.add('has-date');
+      trigger.setAttribute('aria-expanded', 'false');
+    } else {
+      trigger.textContent = 'No date set';
+      trigger.classList.remove('has-date');
+      trigger.setAttribute('aria-expanded', 'false');
+    }
+  }
+
+  function renderMiniCal() {
+    const year     = pickerMonth.getFullYear();
+    const month    = pickerMonth.getMonth();
+    const today    = new Date(); today.setHours(0, 0, 0, 0);
+    const selected = input.value;
+
+    const firstDay = new Date(year, month, 1);
+    const lastDay  = new Date(year, month + 1, 0);
+    const offset   = firstDay.getDay();
+
+    const monthLabel = pickerMonth.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+
+    let html = `
+      <div class="month-nav">
+        <button type="button" class="picker-prev" aria-label="Previous month">&lsaquo;</button>
+        <span>${monthLabel}</span>
+        <button type="button" class="picker-next" aria-label="Next month">&rsaquo;</button>
+      </div>
+      <div class="picker-mini-grid">
+        ${['Su','Mo','Tu','We','Th','Fr','Sa'].map(d => `<div class="day-hdr">${d}</div>`).join('')}
+    `;
+
+    for (let i = 0; i < offset; i++) {
+      html += '<div class="picker-day empty"></div>';
+    }
+
+    for (let day = 1; day <= lastDay.getDate(); day++) {
+      const cellDate = new Date(year, month, day);
+      const key = toDateKey(cellDate);
+      const isToday    = cellDate.getTime() === today.getTime();
+      const isSelected = key === selected;
+      const cls = ['picker-day',
+        isToday    ? 'today'    : '',
+        isSelected ? 'selected' : '',
+      ].filter(Boolean).join(' ');
+      html += `<div class="${cls}" data-date="${key}">${day}</div>`;
+    }
+
+    html += '</div>';
+    calDiv.innerHTML = html;
+
+    calDiv.querySelector('.picker-prev').addEventListener('click', e => {
+      e.stopPropagation();
+      pickerMonth = new Date(pickerMonth.getFullYear(), pickerMonth.getMonth() - 1, 1);
+      renderMiniCal();
+    });
+    calDiv.querySelector('.picker-next').addEventListener('click', e => {
+      e.stopPropagation();
+      pickerMonth = new Date(pickerMonth.getFullYear(), pickerMonth.getMonth() + 1, 1);
+      renderMiniCal();
+    });
+    calDiv.querySelectorAll('.picker-day[data-date]').forEach(el => {
+      el.addEventListener('click', e => {
+        e.stopPropagation();
+        input.value = el.dataset.date;
+        updateTrigger();
+        dropdown.classList.add('hidden');
+        trigger.setAttribute('aria-expanded', 'false');
+      });
+    });
+  }
+
+  trigger.addEventListener('click', e => {
+    e.stopPropagation();
+    const isHidden = dropdown.classList.contains('hidden');
+    // Close all other pickers first
+    document.querySelectorAll('.date-picker-dropdown').forEach(d => {
+      d.classList.add('hidden');
+    });
+    if (isHidden) {
+      // Sync pickerMonth to the currently selected date if any
+      if (input.value) {
+        const [y, m] = input.value.split('-').map(Number);
+        pickerMonth = new Date(y, m - 1, 1);
+      } else {
+        pickerMonth = new Date();
+        pickerMonth.setDate(1);
+        pickerMonth.setHours(0, 0, 0, 0);
+      }
+      renderMiniCal();
+      dropdown.classList.remove('hidden');
+      trigger.setAttribute('aria-expanded', 'true');
+    }
+  });
+
+  // Shortcut buttons
+  dropdown.querySelectorAll('[data-offset]').forEach(btn => {
+    btn.addEventListener('click', e => {
+      e.stopPropagation();
+      const d = new Date();
+      d.setDate(d.getDate() + parseInt(btn.dataset.offset, 10));
+      input.value = toDateKey(d);
+      updateTrigger();
+      dropdown.classList.add('hidden');
+    });
+  });
+
+  // Clear button
+  const clearBtn = dropdown.querySelector('[data-clear]');
+  if (clearBtn) {
+    clearBtn.addEventListener('click', e => {
+      e.stopPropagation();
+      input.value = '';
+      updateTrigger();
+      dropdown.classList.add('hidden');
+    });
+  }
+
+  // Close on outside click
+  document.addEventListener('click', e => {
+    if (!dropdown.classList.contains('hidden') &&
+        !dropdown.contains(e.target) &&
+        e.target !== trigger) {
+      dropdown.classList.add('hidden');
+      trigger.setAttribute('aria-expanded', 'false');
+    }
+  });
+
+  // Close on Escape — handled by the existing keydown handler (will close modal which closes picker)
+
+  return { updateTrigger };
+}
 
 // ── View Switch ───────────────────────────────────────
 function switchView(view) {
@@ -737,3 +890,5 @@ document.addEventListener('click', e => {
 // ── Init ──────────────────────────────────────────────
 refresh();
 initDragDrop();
+const addPicker  = initDatePicker('due-date');
+const editPicker = initDatePicker('edit-due-date');

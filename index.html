@@ -77,8 +77,19 @@
               <option value="someday">Someday</option>
             </select>
 
-            <label for="due-date" class="sr-only">Due date</label>
-            <input type="date" id="due-date" />
+            <div class="date-picker-wrapper">
+              <button type="button" class="date-picker-trigger" id="due-date-trigger" aria-haspopup="true" aria-expanded="false">No date set</button>
+              <input type="date" id="due-date" class="sr-only" tabindex="-1" />
+              <div class="date-picker-dropdown hidden" id="due-date-dropdown">
+                <div class="picker-shortcuts">
+                  <button type="button" data-picker="due-date" data-offset="0">Today</button>
+                  <button type="button" data-picker="due-date" data-offset="1">Tomorrow</button>
+                  <button type="button" data-picker="due-date" data-offset="7">+1 week</button>
+                  <button type="button" data-picker="due-date" data-clear="true">Clear</button>
+                </div>
+                <div class="picker-mini-cal" id="due-date-cal"></div>
+              </div>
+            </div>
           </div>
 
           <div class="form-row modal-actions">
@@ -114,8 +125,19 @@
               <option value="someday">Someday</option>
             </select>
 
-            <label for="edit-due-date" class="sr-only">Due date</label>
-            <input type="date" id="edit-due-date" />
+            <div class="date-picker-wrapper">
+              <button type="button" class="date-picker-trigger" id="edit-due-date-trigger" aria-haspopup="true" aria-expanded="false">No date set</button>
+              <input type="date" id="edit-due-date" class="sr-only" tabindex="-1" />
+              <div class="date-picker-dropdown hidden" id="edit-due-date-dropdown">
+                <div class="picker-shortcuts">
+                  <button type="button" data-picker="edit-due-date" data-offset="0">Today</button>
+                  <button type="button" data-picker="edit-due-date" data-offset="1">Tomorrow</button>
+                  <button type="button" data-picker="edit-due-date" data-offset="7">+1 week</button>
+                  <button type="button" data-picker="edit-due-date" data-clear="true">Clear</button>
+                </div>
+                <div class="picker-mini-cal" id="edit-due-date-cal"></div>
+              </div>
+            </div>
           </div>
           <div class="form-row modal-actions">
             <button type="submit">Save</button>

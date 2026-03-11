@@ -321,6 +321,8 @@ function getFiltered() {
 function refresh() {
   updateProjectFilter();
   renderTasks(getFiltered());
+  const isCalendar = localStorage.getItem('focus_view') === 'calendar';
+  if (isCalendar) renderCalendar();
 }
 
 document.getElementById('search').addEventListener('input', refresh);

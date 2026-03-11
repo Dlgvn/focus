@@ -508,8 +508,92 @@ function renderCalendar() {
   }
 }
 
+// ── Calendar Helpers ──────────────────────────────────
+function toDateKey(date) {
+  const y = date.getFullYear();
+  const m = String(date.getMonth() + 1).padStart(2, '0');
+  const d = String(date.getDate()).padStart(2, '0');
+  return `${y}-${m}-${d}`;
+}
+
+function buildTaskMap(tasks) {
+  const map = {};
+  tasks.forEach(task => {
+    if (task.dueDate) {
+      if (!map[task.dueDate]) map[task.dueDate] = [];
+      map[task.dueDate].push(task);
+    }
+  });
+  return map;
+}
+
+function renderDayDots(dayTasks) {
+  if (dayTasks.length === 0) return '';
+  const PRIORITY_COLOR = { urgent: 'dot-urgent', normal: 'dot-normal', someday: 'dot-someday' };
+  const dots = dayTasks.slice(0, 3).map(t =>
+    `<span class="cal-dot ${PRIORITY_COLOR[t.priority] || 'dot-normal'}"></span>`
+  ).join('');
+  const overflow = dayTasks.length > 3
+    ? `<span class="cal-overflow">+${dayTasks.length - 3}</span>`
+    : '';
+  return `<div class="cal-dots">${dots}${overflow}</div>`;
+}
+
 function renderMonthGrid() {
-  document.getElementById('cal-grid').textContent = 'Month grid coming...';
+  const grid = document.getElementById('cal-grid');
+  const tasks = loadTasks();
+
+  const year  = calDate.getFullYear();
+  const month = calDate.getMonth();
+
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
+  const firstDay = new Date(year, month, 1);
+  const lastDay  = new Date(year, month + 1, 0);
+  const startOffset = firstDay.getDay();
+
+  const taskMap = buildTaskMap(tasks);
+
+  let html = '<div class="month-grid">';
+
+  ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'].forEach(d => {
+    html += `<div class="cal-day-header">${d}</div>`;
+  });
+
+  for (let i = 0; i < startOffset; i++) {
+    html += '<div class="cal-cell other-month"></div>';
+  }
+
+  for (let day = 1; day <= lastDay.getDate(); day++) {
+    const cellDate = new Date(year, month, day);
+    const key = toDateKey(cellDate);
+    const isToday = cellDate.getTime() === today.getTime();
+    const dayTasks = taskMap[key] || [];
+
+    html += `<div class="cal-cell${isToday ? ' today' : ''}" data-date="${key}">
+      <span class="cal-day-num">${day}</span>
+      ${renderDayDots(dayTasks)}
+    </div>`;
+  }
+
+  const total = startOffset + lastDay.getDate();
+  const remainder = total % 7 === 0 ? 0 : 7 - (total % 7);
+  for (let i = 0; i < remainder; i++) {
+    html += '<div class="cal-cell other-month"></div>';
+  }
+
+  html += '</div>';
+  grid.innerHTML = html;
+
+  grid.querySelectorAll('.cal-cell[data-date]').forEach(cell => {
+    cell.addEventListener('click', () => {
+      const key = cell.dataset.date;
+      const dayTasks = taskMap[key] || [];
+      if (dayTasks.length > 0) showDayPopup(cell, key, dayTasks);
+      else closeDayPopup();
+    });
+  });
 }
 
 function renderWeekGrid() {

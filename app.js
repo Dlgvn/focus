@@ -401,6 +401,7 @@ document.addEventListener('keydown', e => {
   if (e.key === 'Escape') {
     if (!addModal.classList.contains('hidden')) closeAddModal();
     else if (!modal.classList.contains('hidden')) closeModal();
+    else closeDayPopup();
   }
 });
 
@@ -680,6 +681,57 @@ document.getElementById('cal-next').addEventListener('click', () => {
     calDate.setDate(calDate.getDate() + 7);
   }
   renderCalendar();
+});
+
+// ── Day Popup ─────────────────────────────────────────
+function showDayPopup(anchorEl, dateKey, dayTasks) {
+  const popup = document.getElementById('day-popup');
+
+  const [y, m, d] = dateKey.split('-').map(Number);
+  const dateLabel = new Date(y, m - 1, d).toLocaleDateString('en-US', {
+    weekday: 'long', month: 'long', day: 'numeric'
+  });
+
+  popup.innerHTML = `
+    <div class="popup-header">
+      <span>${dateLabel}</span>
+      <button class="popup-close" aria-label="Close">×</button>
+    </div>
+    <ul class="popup-task-list">
+      ${dayTasks.map(t => `
+        <li class="popup-task-item">
+          <span class="popup-dot ${t.priority === 'urgent' ? 'dot-urgent' : t.priority === 'normal' ? 'dot-normal' : 'dot-someday'}"></span>
+          <span class="popup-task-title">${escapeHtml(t.title)}</span>
+          ${t.project ? `<span class="badge">${escapeHtml(t.project)}</span>` : ''}
+        </li>
+      `).join('')}
+    </ul>
+  `;
+
+  // Position near anchor
+  const rect = anchorEl.getBoundingClientRect();
+  const scrollY = window.scrollY;
+  popup.style.top  = `${rect.bottom + scrollY + 6}px`;
+  popup.style.left = `${Math.min(rect.left, window.innerWidth - 260)}px`;
+
+  popup.classList.remove('hidden');
+
+  popup.querySelector('.popup-close').addEventListener('click', closeDayPopup);
+}
+
+function closeDayPopup() {
+  const popup = document.getElementById('day-popup');
+  if (popup) popup.classList.add('hidden');
+}
+
+// Close popup on outside click
+document.addEventListener('click', e => {
+  const popup = document.getElementById('day-popup');
+  if (!popup.classList.contains('hidden') &&
+      !popup.contains(e.target) &&
+      !e.target.closest('.cal-cell, .week-col')) {
+    closeDayPopup();
+  }
 });
 
 // ── Init ──────────────────────────────────────────────
